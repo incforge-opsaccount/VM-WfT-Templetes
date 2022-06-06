@@ -1,0 +1,100 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_NUTMEG_200416_183459_name": {
+            "defaultValue": "NUTMEG-200416-183459",
+            "type": "String"
+        },
+        "disks_NUTMEG_200416_183459_winpe_vhd_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/NUTMEG-200416-183459-winpe.vhd",
+            "type": "String"
+        },
+        "disks_NUTMEG_200416_183459_DataDisk0_vhd_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/NUTMEG-200416-183459-DataDisk0.vhd",
+            "type": "String"
+        },
+        "disks_NUTMEG_200416_183459_VHD0_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/NUTMEG-200416-183459-VHD0",
+            "type": "String"
+        },
+        "networkInterfaces_nic01265ac88fc_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Network/networkInterfaces/nic01265ac88fc",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('virtualMachines_NUTMEG_200416_183459_name')]",
+            "location": "ukwest",
+            "tags": {
+                "environment": "WFT-Prod",
+                "client": "WfT",
+                "resourcegroup": "wft-rg-remote-desktop-services",
+                "ID": "WFT-VM-Nutmeg"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_DS12_v2"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_NUTMEG_200416_183459_name'), '-winpe.vhd')]",
+                        "createOption": "Attach",
+                        "caching": "ReadWrite",
+                        "writeAcceleratorEnabled": false,
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS",
+                            "id": "[parameters('disks_NUTMEG_200416_183459_winpe_vhd_externalid')]"
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[concat(parameters('virtualMachines_NUTMEG_200416_183459_name'), '-DataDisk0.vhd')]",
+                            "createOption": "Attach",
+                            "caching": "ReadWrite",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS",
+                                "id": "[parameters('disks_NUTMEG_200416_183459_DataDisk0_vhd_externalid')]"
+                            },
+                            "toBeDetached": false
+                        },
+                        {
+                            "lun": 1,
+                            "name": "[concat(parameters('virtualMachines_NUTMEG_200416_183459_name'), '-VHD0')]",
+                            "createOption": "Attach",
+                            "caching": "ReadWrite",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS",
+                                "id": "[parameters('disks_NUTMEG_200416_183459_VHD0_externalid')]"
+                            },
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_nic01265ac88fc_externalid')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,113 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_wft_vm_cygnus_1_name": {
+            "defaultValue": "wft-vm-cygnus-1",
+            "type": "String"
+        },
+        "disks_OS_cyn01_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/OS_cyn01",
+            "type": "String"
+        },
+        "disks_Cyn_data01_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/Cyn_data01",
+            "type": "String"
+        },
+        "networkInterfaces_wft_vm_cygnus_1442_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Network/networkInterfaces/wft-vm-cygnus-1442",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('virtualMachines_wft_vm_cygnus_1_name')]",
+            "location": "ukwest",
+            "tags": {
+                "environment": "WFT-Prod",
+                "purpose": "unknown",
+                "client": "WfT",
+                "resourcegroup": "wft-rg-data-cleaning",
+                "ID": "wft-vm-cygnus-1"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_F4s_v2"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "OS_cyn01",
+                        "createOption": "Attach",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS",
+                            "id": "[parameters('disks_OS_cyn01_externalid')]"
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "Cyn_data01",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS",
+                                "id": "[parameters('disks_Cyn_data01_externalid')]"
+                            },
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_wft_vm_cygnus_1442_externalid')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2021-11-01",
+            "name": "[concat(parameters('virtualMachines_wft_vm_cygnus_1_name'), '/AntimalwareExtension')]",
+            "location": "ukwest",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_wft_vm_cygnus_1_name'))]"
+            ],
+            "properties": {
+                "autoUpgradeMinorVersion": true,
+                "publisher": "Microsoft.Azure.Security",
+                "type": "IaaSAntimalware",
+                "typeHandlerVersion": "1.3",
+                "settings": {
+                    "AntimalwareEnabled": "true",
+                    "Exclusions": {
+                        "Paths": "[parameters('extensions_AntimalwareExtension_Paths')]",
+                        "Extensions": "[parameters('extensions_AntimalwareExtension_Extensions')]",
+                        "Processes": "[parameters('extensions_AntimalwareExtension_Processes')]"
+                    },
+                    "RealtimeProtectionEnabled": false,
+                    "ScheduledScanSettings": {
+                        "isEnabled": false,
+                        "scanType": "Quick",
+                        "day": "7",
+                        "time": "120"
+                    }
+                }
+            }
+        }
+    ]
+}

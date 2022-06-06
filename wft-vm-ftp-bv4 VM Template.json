@@ -1,0 +1,81 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_wft_vm_ftp_bv4_name": {
+            "defaultValue": "wft-vm-ftp-bv4",
+            "type": "String"
+        },
+        "disks_wft_vm_ftp_bv4_c1162def0f354e93839d62efd0a5cd24_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/wft-vm-ftp-bv4_c1162def0f354e93839d62efd0a5cd24",
+            "type": "String"
+        },
+        "disks_wft_vm_ftp_bv4_datadisk_c7aa02c7588c443999250d8145e0a415_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/wft-vm-ftp-bv4-datadisk_c7aa02c7588c443999250d8145e0a415",
+            "type": "String"
+        },
+        "networkInterfaces_mld_vm_ftp_bv4493_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfTproduction/providers/Microsoft.Network/networkInterfaces/mld-vm-ftp-bv4493",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('virtualMachines_wft_vm_ftp_bv4_name')]",
+            "location": "ukwest",
+            "tags": {
+                "environment": "WFT-Prod",
+                "client": "WfT",
+                "purpose": "SFTP",
+                "ID": "wft-vm-ftp"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_DS2_v2"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_wft_vm_ftp_bv4_name'), '_c1162def0f354e93839d62efd0a5cd24')]",
+                        "createOption": "Attach",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS",
+                            "id": "[parameters('disks_wft_vm_ftp_bv4_c1162def0f354e93839d62efd0a5cd24_externalid')]"
+                        },
+                        "diskSizeGB": 128
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[concat(parameters('virtualMachines_wft_vm_ftp_bv4_name'), '-datadisk_c7aa02c7588c443999250d8145e0a415')]",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS",
+                                "id": "[parameters('disks_wft_vm_ftp_bv4_datadisk_c7aa02c7588c443999250d8145e0a415_externalid')]"
+                            },
+                            "diskSizeGB": 1024,
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_mld_vm_ftp_bv4493_externalid')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}

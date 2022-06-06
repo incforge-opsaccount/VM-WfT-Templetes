@@ -1,0 +1,85 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_wft_vm_fs_build_2_name": {
+            "defaultValue": "wft-vm-fs-build-2",
+            "type": "String"
+        },
+        "disks_wft_os_disk_fs_build_2_1_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/wft-os-disk-fs-build-2_1",
+            "type": "String"
+        },
+        "disks_wft_data_disk_1_fs_build_2_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/wft-data-disk-1-fs-build-2",
+            "type": "String"
+        },
+        "networkInterfaces_wft_nic_fs_build_2_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Network/networkInterfaces/wft-nic-fs-build-2",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('virtualMachines_wft_vm_fs_build_2_name')]",
+            "location": "ukwest",
+            "tags": {
+                "environment": "WFT-Prod",
+                "purpose": "unknown",
+                "client": "WfT",
+                "resourcegroup": "wft-rg-faststats",
+                "ID": "wft-vm-fs-build-2"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_F8s_v2"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "wft-os-disk-fs-build-2_1",
+                        "createOption": "Attach",
+                        "caching": "ReadWrite",
+                        "writeAcceleratorEnabled": false,
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS",
+                            "id": "[parameters('disks_wft_os_disk_fs_build_2_1_externalid')]"
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "wft-data-disk-1-fs-build-2",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS",
+                                "id": "[parameters('disks_wft_data_disk_1_fs_build_2_externalid')]"
+                            },
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_wft_nic_fs_build_2_externalid')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}

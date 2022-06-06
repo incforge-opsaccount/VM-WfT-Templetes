@@ -1,0 +1,123 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_WFT_VM_ANALYSIS_name": {
+            "defaultValue": "WFT-VM-ANALYSIS",
+            "type": "String"
+        },
+        "disks_WFT_VM_ANALYSIS_OsDisk_1_b2e263b9bfd44007b95d2d2ce816d483_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/WFT-VM-ANALYSIS_OsDisk_1_b2e263b9bfd44007b95d2d2ce816d483",
+            "type": "String"
+        },
+        "disks_WFT_VM_ANALYSIS_DataDisk_0_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/WFT-VM-ANALYSIS_DataDisk_0",
+            "type": "String"
+        },
+        "disks_WFT_VM_ANALYSIS_DataDisk_1_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/WFT-VM-ANALYSIS_DataDisk_1",
+            "type": "String"
+        },
+        "networkInterfaces_wft_vm_analysis763_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Network/networkInterfaces/wft-vm-analysis763",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('virtualMachines_WFT_VM_ANALYSIS_name')]",
+            "location": "ukwest",
+            "tags": {
+                "ID": "WFT-VM-ANALYSIS",
+                "client": "WfT",
+                "environment": "production"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_E8s_v3"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "microsoftsqlserver",
+                        "offer": "sql2019-ws2019",
+                        "sku": "standard",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_WFT_VM_ANALYSIS_name'), '_OsDisk_1_b2e263b9bfd44007b95d2d2ce816d483')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[parameters('disks_WFT_VM_ANALYSIS_OsDisk_1_b2e263b9bfd44007b95d2d2ce816d483_externalid')]"
+                        },
+                        "deleteOption": "Detach"
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[concat(parameters('virtualMachines_WFT_VM_ANALYSIS_name'), '_DataDisk_0')]",
+                            "createOption": "Attach",
+                            "caching": "ReadOnly",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS",
+                                "id": "[parameters('disks_WFT_VM_ANALYSIS_DataDisk_0_externalid')]"
+                            },
+                            "deleteOption": "Detach",
+                            "toBeDetached": false
+                        },
+                        {
+                            "lun": 1,
+                            "name": "[concat(parameters('virtualMachines_WFT_VM_ANALYSIS_name'), '_DataDisk_1')]",
+                            "createOption": "Attach",
+                            "caching": "ReadOnly",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS",
+                                "id": "[parameters('disks_WFT_VM_ANALYSIS_DataDisk_1_externalid')]"
+                            },
+                            "deleteOption": "Detach",
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_WFT_VM_ANALYSIS_name')]",
+                    "adminUsername": "itadmin",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault",
+                            "enableHotpatching": false
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_wft_vm_analysis763_externalid')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}

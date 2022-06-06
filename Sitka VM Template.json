@@ -1,0 +1,133 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_SITKA_200411_092535_name": {
+            "defaultValue": "SITKA-200411-092535",
+            "type": "String"
+        },
+        "disks_SITKA_200411_092535_winpe_vhd_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/SITKA-200411-092535-winpe.vhd",
+            "type": "String"
+        },
+        "disks_SITKA_200411_092535_DataDisk0_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/SITKA-200411-092535-DataDisk0",
+            "type": "String"
+        },
+        "disks_SITKA_200411_092535_DataDisk1_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/SITKA-200411-092535-DataDisk1",
+            "type": "String"
+        },
+        "disks_SITKA_200411_092535_DataDisk2_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/SITKA-200411-092535-DataDisk2",
+            "type": "String"
+        },
+        "disks_SITKA_200411_092535_VHD0_vhd_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/SITKA-200411-092535-VHD0.vhd",
+            "type": "String"
+        },
+        "networkInterfaces_nic31207aceeb7_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfTproduction/providers/Microsoft.Network/networkInterfaces/nic31207aceeb7",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('virtualMachines_SITKA_200411_092535_name')]",
+            "location": "ukwest",
+            "tags": {
+                "environment": "WFT-Prod",
+                "purpose": "faststats",
+                "client": "WfT",
+                "resourcegroup": "wft-rg-sql",
+                "ID": "SITKA-200411-092535"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_E8s_v3"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_SITKA_200411_092535_name'), '-winpe.vhd')]",
+                        "createOption": "Attach",
+                        "caching": "ReadWrite",
+                        "writeAcceleratorEnabled": false,
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS",
+                            "id": "[parameters('disks_SITKA_200411_092535_winpe_vhd_externalid')]"
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[concat(parameters('virtualMachines_SITKA_200411_092535_name'), '-DataDisk0')]",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS",
+                                "id": "[parameters('disks_SITKA_200411_092535_DataDisk0_externalid')]"
+                            },
+                            "toBeDetached": false
+                        },
+                        {
+                            "lun": 1,
+                            "name": "[concat(parameters('virtualMachines_SITKA_200411_092535_name'), '-DataDisk1')]",
+                            "createOption": "Attach",
+                            "caching": "ReadOnly",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS",
+                                "id": "[parameters('disks_SITKA_200411_092535_DataDisk1_externalid')]"
+                            },
+                            "toBeDetached": false
+                        },
+                        {
+                            "lun": 2,
+                            "name": "[concat(parameters('virtualMachines_SITKA_200411_092535_name'), '-DataDisk2')]",
+                            "createOption": "Attach",
+                            "caching": "ReadOnly",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS",
+                                "id": "[parameters('disks_SITKA_200411_092535_DataDisk2_externalid')]"
+                            },
+                            "toBeDetached": false
+                        },
+                        {
+                            "lun": 3,
+                            "name": "[concat(parameters('virtualMachines_SITKA_200411_092535_name'), '-VHD0.vhd')]",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS",
+                                "id": "[parameters('disks_SITKA_200411_092535_VHD0_vhd_externalid')]"
+                            },
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_nic31207aceeb7_externalid')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}

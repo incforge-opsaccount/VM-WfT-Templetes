@@ -1,0 +1,90 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_wft_vm_sql_cdc_name": {
+            "defaultValue": "wft-vm-sql-cdc",
+            "type": "String"
+        },
+        "disks_wft_vm_sql_cdc_OsDisk_1_75e9de6f08b6465faf69cba38635c949_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/wft-vm-sql-cdc_OsDisk_1_75e9de6f08b6465faf69cba38635c949",
+            "type": "String"
+        },
+        "disks_wft_vm_sql_cdc_DataDisk_0_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/wft-vm-sql-cdc_DataDisk_0",
+            "type": "String"
+        },
+        "networkInterfaces_wft_vm_sql_cdc860_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Network/networkInterfaces/wft-vm-sql-cdc860",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('virtualMachines_wft_vm_sql_cdc_name')]",
+            "location": "ukwest",
+            "tags": {
+                "environment": "WFT-Prod",
+                "purpose": "unknown",
+                "client": "WfT",
+                "resourcegroup": "wft-rg-cdc-poc",
+                "ID": "wft-vm-sql-cdc"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_D4s_v3"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_wft_vm_sql_cdc_name'), '_OsDisk_1_75e9de6f08b6465faf69cba38635c949')]",
+                        "createOption": "Attach",
+                        "caching": "ReadWrite",
+                        "writeAcceleratorEnabled": false,
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[parameters('disks_wft_vm_sql_cdc_OsDisk_1_75e9de6f08b6465faf69cba38635c949_externalid')]"
+                        },
+                        "diskSizeGB": 128
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[concat(parameters('virtualMachines_wft_vm_sql_cdc_name'), '_DataDisk_0')]",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS",
+                                "id": "[parameters('disks_wft_vm_sql_cdc_DataDisk_0_externalid')]"
+                            },
+                            "diskSizeGB": 1024,
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_wft_vm_sql_cdc860_externalid')]",
+                            "properties": {
+                                "primary": true
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,104 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_wft_filesrv_01_name": {
+            "defaultValue": "wft-filesrv-01",
+            "type": "String"
+        },
+        "disks_wft_filesrv_01_OsDisk_1_8fa6aae236084e929dc0d4b1969854e9_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/wft-filesrv-01_OsDisk_1_8fa6aae236084e929dc0d4b1969854e9",
+            "type": "String"
+        },
+        "disks_oldfig_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/oldfig",
+            "type": "String"
+        },
+        "disks_job_backups_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/job_backups",
+            "type": "String"
+        },
+        "networkInterfaces_wft_nic_filesrv_01_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Network/networkInterfaces/wft-nic-filesrv-01",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('virtualMachines_wft_filesrv_01_name')]",
+            "location": "ukwest",
+            "tags": {
+                "environment": "WFT-Prod",
+                "purpose": "File Server",
+                "client": "WfT",
+                "resourcegroup": "wft-rg-fileserver",
+                "ID": "wft-filesrv-01"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_D8s_v3"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_wft_filesrv_01_name'), '_OsDisk_1_8fa6aae236084e929dc0d4b1969854e9')]",
+                        "createOption": "Attach",
+                        "caching": "ReadWrite",
+                        "writeAcceleratorEnabled": false,
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS",
+                            "id": "[parameters('disks_wft_filesrv_01_OsDisk_1_8fa6aae236084e929dc0d4b1969854e9_externalid')]"
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 2,
+                            "name": "oldfig",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Premium_LRS",
+                                "id": "[parameters('disks_oldfig_externalid')]"
+                            },
+                            "toBeDetached": false
+                        },
+                        {
+                            "lun": 0,
+                            "name": "job_backups",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS",
+                                "id": "[parameters('disks_job_backups_externalid')]"
+                            },
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_wft_nic_filesrv_01_externalid')]",
+                            "properties": {
+                                "primary": true
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}

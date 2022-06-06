@@ -1,0 +1,99 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_TEAK_200413_180333_name": {
+            "defaultValue": "TEAK-200413-180333",
+            "type": "String"
+        },
+        "disks_TEAK_200413_180333_winpe_vhd_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/TEAK-200413-180333-winpe.vhd",
+            "type": "String"
+        },
+        "disks_TEAK_200413_180333_VHD0_vhd_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/TEAK-200413-180333-VHD0.vhd",
+            "type": "String"
+        },
+        "disks_teak_datadisk1_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Compute/disks/teak-datadisk1",
+            "type": "String"
+        },
+        "networkInterfaces_nic96300a29ea1_externalid": {
+            "defaultValue": "/subscriptions/50704de3-53da-416c-8404-55338c4505cf/resourceGroups/WfT_production/providers/Microsoft.Network/networkInterfaces/nic96300a29ea1",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('virtualMachines_TEAK_200413_180333_name')]",
+            "location": "ukwest",
+            "tags": {
+                "environment": "WFT-Prod",
+                "purpose": "faststats",
+                "client": "WfT",
+                "resourcegroup": "wft-rg-sql",
+                "ID": "TEAK-200413-180333"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B12ms"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_TEAK_200413_180333_name'), '-winpe.vhd')]",
+                        "createOption": "Attach",
+                        "caching": "ReadWrite",
+                        "writeAcceleratorEnabled": false,
+                        "managedDisk": {
+                            "id": "[parameters('disks_TEAK_200413_180333_winpe_vhd_externalid')]"
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[concat(parameters('virtualMachines_TEAK_200413_180333_name'), '-VHD0.vhd')]",
+                            "createOption": "Attach",
+                            "caching": "ReadWrite",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "id": "[parameters('disks_TEAK_200413_180333_VHD0_vhd_externalid')]"
+                            },
+                            "toBeDetached": false
+                        },
+                        {
+                            "lun": 2,
+                            "name": "TEAK-DataDisk1",
+                            "createOption": "Attach",
+                            "caching": "ReadWrite",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "id": "[parameters('disks_teak_datadisk1_externalid')]"
+                            },
+                            "deleteOption": "Detach",
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_nic96300a29ea1_externalid')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ]
+}
